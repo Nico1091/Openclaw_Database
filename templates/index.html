@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database IA - OpenClaw Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Database IA</h1>
+                        <p class="text-purple-200 text-sm">OpenClaw Dashboard</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 bg-white/20 rounded-full px-4 py-2">
+                        <div class="w-2 h-2 bg-green-400 rounded-full pulse-animation"></div>
+                        <span class="text-sm">Auto-refresh activo</span>
+                    </div>
+                    <button onclick="refreshData()" class="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-purple-50 transition flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span>Actualizar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Sesiones</p>
+                        <p class="text-3xl font-bold text-gray-800" id="totalSessions">-</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Modelos Activos</p>
+                        <p class="text-3xl font-bold text-gray-800" id="totalModels">-</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Tokens Totales</p>
+                        <p class="text-3xl font-bold text-gray-800" id="totalTokens">-</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6 card-hover">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Costo Estimado</p>
+                        <p class="text-3xl font-bold text-gray-800" id="totalCost">$0.00</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Tokens por Modelo</h3>
+                <canvas id="tokensChart"></canvas>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Sesiones por Día</h3>
+                <canvas id="sessionsChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Tables Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Models Table -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Modelos Disponibles</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-gray-500 text-sm border-b">
+                                <th class="pb-3 font-medium">Nombre</th>
+                                <th class="pb-3 font-medium">Proveedor</th>
+                                <th class="pb-3 font-medium">Contexto</th>
+                                <th class="pb-3 font-medium">Razonamiento</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modelsTable">
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-gray-400">Cargando...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sessions Table -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Sesiones Recientes</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-gray-500 text-sm border-b">
+                                <th class="pb-3 font-medium">Modelo</th>
+                                <th class="pb-3 font-medium">Estado</th>
+                                <th class="pb-3 font-medium">Tokens</th>
+                                <th class="pb-3 font-medium">Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionsTable">
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-gray-400">Cargando...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversations Section -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Conversaciones Completas (SQL)</h3>
+            <div class="mb-4">
+                <select id="sessionSelector" class="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <option value="">Selecciona una sesión...</option>
+                </select>
+            </div>
+            <div id="conversationContainer" class="bg-gray-50 rounded-xl p-4 max-h-96 overflow-y-auto">
+                <p class="text-center text-gray-400 py-8">Selecciona una sesión para ver la conversación</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-8">
+        <div class="container mx-auto px-6 py-4">
+            <p class="text-center text-gray-500 text-sm">Database IA Dashboard - OpenClaw © 2026</p>
+        </div>
+    </footer>
+
+    <script>
+        let tokensChart, sessionsChart;
+
+        async function fetchData() {
+            try {
+                const [stats, models, sessions] = await Promise.all([
+                    fetch('/api/stats').then(r => r.json()),
+                    fetch('/api/models').then(r => r.json()),
+                    fetch('/api/sessions').then(r => r.json())
+                ]);
+
+                updateStats(stats);
+                updateModelsTable(models);
+                updateSessionsTable(sessions);
+                updateCharts(stats);
+                updateSessionSelector(sessions);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function updateStats(stats) {
+            document.getElementById('totalSessions').textContent = stats.total_sessions;
+            document.getElementById('totalModels').textContent = stats.total_models;
+            document.getElementById('totalTokens').textContent = formatNumber(stats.total_tokens);
+            document.getElementById('totalCost').textContent = '$' + stats.total_cost.toFixed(2);
+        }
+
+        function updateModelsTable(models) {
+            const tbody = document.getElementById('modelsTable');
+            tbody.innerHTML = models.map(model => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="py-3 text-sm text-gray-800">${model.name}</td>
+                    <td class="py-3 text-sm text-gray-600">${model.provider}</td>
+                    <td class="py-3 text-sm text-gray-600">${formatNumber(model.context_window)}</td>
+                    <td class="py-3">
+                        ${model.reasoning 
+                            ? '<span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Sí</span>'
+                            : '<span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">No</span>'
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateSessionsTable(sessions) {
+            const tbody = document.getElementById('sessionsTable');
+            tbody.innerHTML = sessions.slice(0, 10).map(session => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="py-3 text-sm text-gray-800">${session.model || 'N/A'}</td>
+                    <td class="py-3">
+                        <span class="bg-${getStatusColor(session.status)}-100 text-${getStatusColor(session.status)}-800 text-xs px-2 py-1 rounded-full">
+                            ${session.status || 'N/A'}
+                        </span>
+                    </td>
+                    <td class="py-3 text-sm text-gray-600">${formatNumber(session.total_tokens || 0)}</td>
+                    <td class="py-3 text-sm text-gray-600">${formatDate(session.started_at)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateCharts(stats) {
+            // Tokens Chart
+            const tokensCtx = document.getElementById('tokensChart').getContext('2d');
+            if (tokensChart) tokensChart.destroy();
+            
+            tokensChart = new Chart(tokensCtx, {
+                type: 'bar',
+                data: {
+                    labels: stats.tokens_by_model.map(m => m.model || 'Unknown'),
+                    datasets: [{
+                        label: 'Tokens',
+                        data: stats.tokens_by_model.map(m => m.total || 0),
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)'
+                        ],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Sessions Chart
+            const sessionsCtx = document.getElementById('sessionsChart').getContext('2d');
+            if (sessionsChart) sessionsChart.destroy();
+            
+            sessionsChart = new Chart(sessionsCtx, {
+                type: 'line',
+                data: {
+                    labels: stats.sessions_by_day.map(s => s.date || 'Unknown'),
+                    datasets: [{
+                        label: 'Sesiones',
+                        data: stats.sessions_by_day.map(s => s.count || 0),
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        async function refreshData() {
+            try {
+                const response = await fetch('/api/refresh');
+                const data = await response.json();
+                if (data.status === 'success') {
+                    fetchData();
+                    alert('Datos actualizados exitosamente');
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (error) {
+                alert('Error al actualizar: ' + error.message);
+            }
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-ES', { 
+                day: '2-digit', 
+                month: 'short',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'done': 'green',
+                'running': 'blue',
+                'error': 'red',
+                'pending': 'yellow'
+            };
+            return colors[status] || 'gray';
+        }
+
+        function updateSessionSelector(sessions) {
+            const selector = document.getElementById('sessionSelector');
+            selector.innerHTML = '<option value="">Selecciona una sesión...</option>';
+            
+            sessions.forEach(session => {
+                const option = document.createElement('option');
+                option.value = session.session_id;
+                option.textContent = `${session.model || 'Unknown'} - ${formatDate(session.started_at)}`;
+                selector.appendChild(option);
+            });
+            
+            // Agregar event listener
+            selector.onchange = async function() {
+                if (this.value) {
+                    await loadConversation(this.value);
+                } else {
+                    document.getElementById('conversationContainer').innerHTML = '<p class="text-center text-gray-400 py-8">Selecciona una sesión para ver la conversación</p>';
+                }
+            };
+        }
+
+        async function loadConversation(sessionId) {
+            try {
+                const response = await fetch(`/api/messages/${sessionId}`);
+                const messages = await response.json();
+                
+                const container = document.getElementById('conversationContainer');
+                
+                if (messages.length === 0) {
+                    container.innerHTML = '<p class="text-center text-gray-400 py-8">No hay mensajes en esta sesión</p>';
+                    return;
+                }
+                
+                container.innerHTML = messages.map(msg => `
+                    <div class="mb-4 ${msg.role === 'user' ? 'text-right' : 'text-left'}">
+                        <div class="inline-block max-w-[80%] ${msg.role === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-800'} rounded-lg px-4 py-2">
+                            <div class="text-xs font-semibold mb-1 opacity-70">${msg.role}</div>
+                            <div class="text-sm whitespace-pre-wrap">${escapeHtml(msg.content)}</div>
+                            <div class="text-xs mt-1 opacity-50">${formatDate(msg.timestamp)}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Scroll to bottom
+                container.scrollTop = container.scrollHeight;
+            } catch (error) {
+                console.error('Error loading conversation:', error);
+                document.getElementById('conversationContainer').innerHTML = '<p class="text-center text-red-400 py-8">Error al cargar la conversación</p>';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initial load
+        fetchData();
+        
+        // Auto-refresh every 30 seconds
+        setInterval(fetchData, 30000);
+    </script>
+</body>
+</html>
